@@ -15,3 +15,8 @@ DATABASE_URL="postgresql://postgres:root@localhost:5433/user?schema=public"
 JWT_ACCESS_SECRET=oiaecrgjkmn138945casdf
 JWT_REFRESH_SECRET=hujioacefmgr6789025yfweciourghj29s3r803d5g4iuhj24t09
 ```
+## Swagger API
+
+~~~
+http://176.109.108.98:8077/api
+~~~
