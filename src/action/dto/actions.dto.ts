@@ -1,9 +1,8 @@
-import { ActionType } from '@prisma/client';
 import { IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class ActionQueryDto {
   @IsString()
-  action: ActionType;
+  type: string;
 
   @IsString()
   token: string;

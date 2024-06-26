@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
@@ -31,6 +39,7 @@ export class AuthenticationController {
 
   @UseGuards(AccessGuard)
   @Post('change-password')
+  @HttpCode(200)
   async sendEmailToChangePassword(@Req() req: RequestWithEmail) {
     return this.authenticationService.sendEmailToChangePassword(req);
   }
