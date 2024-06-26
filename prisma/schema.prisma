@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  name         String
+  surname      String
+  middlename   String?
+  email        String    @id
+  username     String?
+  password     String
+  is_confirmed Boolean   @default(false)
+  Actions      Actions[]
+}
+
+model Actions {
+  id          Int        @id @default(autoincrement())
+  user_email  String
+  action_type ActionType
+  token       String
+  exp_date    DateTime
+
+  User User @relation(fields: [user_email], references: [email])
+}
+
+enum ActionType {
+  changePassword
+  confirmEmail
+}
