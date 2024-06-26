@@ -19,12 +19,12 @@ export class MailService {
   }
 
   async sendPasswordResetEmail(to: string, token: string, type: ActionType) {
-    const resetLink = `http://176.109.108.98:4444/action?type=${type}&token=${token}`;
+    const resetLink = `https://frontendurl.ru/action?type=${type}&token=${token}`;
     const mailOptions = {
       from: 'noreply@yourapp.com',
       to: to,
       subject: 'Password Reset Request',
-      html: `<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="${resetLink}">Reset Password</a></p>`,
+      html: `<p>You requested password change. Click the link below to change your password:</p><p><a href="${resetLink}">Change Password</a></p>`,
     };
 
     await this.transporter.sendMail(mailOptions);
@@ -35,7 +35,7 @@ export class MailService {
     token: string,
     type: ActionType,
   ) {
-    const resetLink = `http://176.109.108.98:4444/action?type=${type}&token=${token}`;
+    const resetLink = `https://frontendurl.ru/action?type=${type}&token=${token}`;
     const mailOptions = {
       from: 'noreply@yourapp.com',
       to: to,
