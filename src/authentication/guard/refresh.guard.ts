@@ -3,7 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   Logger,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -14,19 +14,15 @@ import { Payload } from '../dto/jwt-payload.dto';
 export class RefreshGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const request: Request & { email?: string } = context
-      .switchToHttp()
-      .getRequest();
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    const request: Request & { email?: string } = context.switchToHttp().getRequest();
     const token = this.extractTokenFromCookie(request);
     if (!token) {
       throw new UnauthorizedException('Invalid refresh token');
     }
     try {
       const payload: Payload = this.jwtService.verify(token, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: process.env.JWT_REFRESH_SECRET
       });
       request.email = payload.email;
     } catch (e) {

@@ -1,6 +1,12 @@
 # IPST task 2 backend
 
-Authorization module (signup, signin using JWT tokens, registration email confirmation and password reset email confirmation )
+Authorization module: signup, signin using JWT tokens, registration email confirmation and password reset email confirmation
+
+## Authorization
+
+Access token stored in body of response in signin route
+Access token should be stored in Authorization header of request to private routes
+Refresh token stored in http-only cookie and should be sent with request to refresh route
 
 ## ENV variables example
 

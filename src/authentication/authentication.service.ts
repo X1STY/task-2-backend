@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { SignUpDto } from './dto/signup.dto';
+import { SignUpRequestDto, SignUpResponseDto } from './dto/signup.dto';
 import { PrismaService } from 'src/services/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from './dto/signin.dto';
+import { SignInDto, SignInResponseDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import * as cookie from 'cookie';
@@ -10,23 +10,24 @@ import { RequestWithEmail } from '@types';
 import { nanoid } from 'nanoid';
 import { ActionType } from '@prisma/client';
 import { MailService } from 'src/services/mail.service';
+import { RefreshResponseDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
-    private readonly mailService: MailService,
+    private readonly mailService: MailService
   ) {}
 
-  async signUp(payload: SignUpDto) {
+  async signUp(payload: SignUpRequestDto): Promise<SignUpResponseDto> {
     const user = await this.prisma.user.findFirst({
       where: {
-        email: payload.email,
-      },
+        email: payload.email
+      }
     });
     if (user) {
-      throw new BadRequestException('User with this email already exists');
+      throw new BadRequestException(['User with this email already exists']);
     }
 
     const hashedPassword = await bcrypt.hash(payload.password, 10);
@@ -38,27 +39,36 @@ export class AuthenticationService {
         middlename: payload.middlename,
         email: payload.email,
         username: payload.username,
-        password: hashedPassword,
-      },
+        password: hashedPassword
+      }
     });
 
     await this.sendEmailOnRegister(payload.email);
 
-    return { ...newUser, password: undefined };
+    return {
+      user: {
+        email: newUser.email,
+        name: newUser.name,
+        surname: newUser.surname,
+        middlename: newUser.middlename,
+        username: newUser.username,
+        is_confirmed: newUser.is_confirmed
+      }
+    };
   }
 
-  async signIn(payload: SignInDto, response: Response) {
+  async signIn(payload: SignInDto, response: Response): Promise<SignInResponseDto> {
     const { email, password } = payload;
     const user = await this.validateUser(email, password);
     if (!user) {
-      throw new BadRequestException('Invalid credentials');
+      throw new BadRequestException(['Invalid credentials']);
     }
     const { accessToken, refreshToken } = this.generateTokens(email);
 
     response.cookie('refreshToken', refreshToken, {
       expires: new Date(new Date().getTime() + 30 * 1000),
       sameSite: 'strict',
-      httpOnly: true,
+      httpOnly: true
     });
 
     response.setHeader(
@@ -68,20 +78,24 @@ export class AuthenticationService {
         secure: true,
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 3,
-        path: '/',
-      }),
+        path: '/'
+      })
     );
 
     return {
       user: {
-        ...user,
-        password: undefined,
+        email: user.email,
+        name: user.name,
+        surname: user.surname,
+        middlename: user.middlename,
+        username: user.username,
+        is_confirmed: user.is_confirmed
       },
-      accessToken,
+      accessToken
     };
   }
 
-  async refreshTokens(response: Response, requset: RequestWithEmail) {
+  async refreshTokens(response: Response, requset: RequestWithEmail): Promise<RefreshResponseDto> {
     const email = requset.email;
     const { accessToken, refreshToken } = this.generateTokens(email);
     response.setHeader(
@@ -91,35 +105,35 @@ export class AuthenticationService {
         secure: true,
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 3,
-        path: '/',
-      }),
+        path: '/'
+      })
     );
     return {
-      accessToken,
+      accessToken
     };
   }
 
   private generateTokens(email: string) {
     const accessToken = this.jwt.sign(
       { email },
-      { expiresIn: '1h', secret: process.env.JWT_ACCESS_SECRET },
+      { expiresIn: '1h', secret: process.env.JWT_ACCESS_SECRET }
     );
     const refreshToken = this.jwt.sign(
       { email },
-      { expiresIn: '3d', secret: process.env.JWT_REFRESH_SECRET },
+      { expiresIn: '3d', secret: process.env.JWT_REFRESH_SECRET }
     );
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken
     };
   }
 
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        email,
-      },
+        email
+      }
     });
     if (!user) {
       return null;
@@ -138,15 +152,15 @@ export class AuthenticationService {
     const previosRequest = await this.prisma.actions.findFirst({
       where: {
         action_type: type,
-        user_email: to,
-      },
+        user_email: to
+      }
     });
 
     if (previosRequest) {
       await this.prisma.actions.delete({
         where: {
-          id: previosRequest?.id,
-        },
+          id: previosRequest?.id
+        }
       });
     }
 
@@ -155,8 +169,8 @@ export class AuthenticationService {
         action_type: type,
         token,
         user_email: to,
-        exp_date: new Date(Date.now() + 1000 * 60 * 15),
-      },
+        exp_date: new Date(Date.now() + 1000 * 60 * 15)
+      }
     });
 
     await this.mailService.sendRegistrationConfirmEmail(to, token, type);
@@ -169,14 +183,14 @@ export class AuthenticationService {
     const previosRequest = await this.prisma.actions.findFirst({
       where: {
         action_type: type,
-        user_email: email,
-      },
+        user_email: email
+      }
     });
     if (previosRequest) {
       await this.prisma.actions.delete({
         where: {
-          id: previosRequest?.id,
-        },
+          id: previosRequest?.id
+        }
       });
     }
     await this.prisma.actions.create({
@@ -184,8 +198,8 @@ export class AuthenticationService {
         action_type: type,
         token,
         user_email: email,
-        exp_date: new Date(Date.now() + 1000 * 60 * 15),
-      },
+        exp_date: new Date(Date.now() + 1000 * 60 * 15)
+      }
     });
     await this.mailService.sendPasswordResetEmail(email, token, type);
   }

@@ -1,16 +1,20 @@
-import { Body, Controller, Put, Query } from '@nestjs/common';
+import { Body, Controller, HttpCode, Put, Query } from '@nestjs/common';
 import { ActionService } from './action.service';
 import { ActionBodyDto, ActionQueryDto } from './dto/actions.dto';
+import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { BadRequestErrorDto } from 'src/error/dto/error.dto';
 
+@ApiTags('Action')
 @Controller('action')
 export class ActionController {
   constructor(private readonly actionService: ActionService) {}
 
   @Put('')
-  async handleAction(
-    @Query() query: ActionQueryDto,
-    @Body() body: ActionBodyDto,
-  ) {
+  @ApiBody({ type: ActionBodyDto, required: false })
+  @ApiOkResponse()
+  @ApiBadRequestResponse({ type: BadRequestErrorDto })
+  @HttpCode(200)
+  async handleAction(@Query() query: ActionQueryDto, @Body() body?: ActionBodyDto) {
     return await this.actionService.handleAction(query, body);
   }
 }
