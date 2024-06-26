@@ -5,6 +5,7 @@ import { SignInDto } from './dto/signin.dto';
 import { Response } from 'express';
 import { RefreshGuard } from './guard/refresh.guard';
 import { RequestWithEmail } from '@types';
+import { AccessGuard } from './guard/access.guard';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -26,5 +27,11 @@ export class AuthenticationController {
   async refreshTokens(@Res() res: Response, @Req() req: RequestWithEmail) {
     const result = await this.authenticationService.refreshTokens(res, req);
     return res.send(result);
+  }
+
+  @UseGuards(AccessGuard)
+  @Post('change-password')
+  async sendEmailToChangePassword(@Req() req: RequestWithEmail) {
+    return this.authenticationService.sendEmailToChangePassword(req);
   }
 }
