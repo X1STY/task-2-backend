@@ -161,4 +161,32 @@ export class AuthenticationService {
 
     await this.mailService.sendRegistrationConfirmEmail(to, token, type);
   }
+
+  async sendEmailToChangePassword(requset: RequestWithEmail) {
+    const email = requset.email;
+    const type = ActionType.changePassword;
+    const token = nanoid(64);
+    const previosRequest = await this.prisma.actions.findFirst({
+      where: {
+        action_type: type,
+        user_email: email,
+      },
+    });
+    if (previosRequest) {
+      await this.prisma.actions.delete({
+        where: {
+          id: previosRequest?.id,
+        },
+      });
+    }
+    await this.prisma.actions.create({
+      data: {
+        action_type: type,
+        token,
+        user_email: email,
+        exp_date: new Date(Date.now() + 1000 * 60 * 15),
+      },
+    });
+    await this.mailService.sendPasswordResetEmail(email, token, type);
+  }
 }
