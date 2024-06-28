@@ -1,23 +1,27 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { SignUpRequestDto, SignUpResponseDto } from './dto/signup.dto';
-import { PrismaService } from 'src/services/prisma.service';
-import * as bcrypt from 'bcrypt';
-import { SignInDto, SignInResponseDto } from './dto/signin.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
-import * as cookie from 'cookie';
-import { RequestWithEmail } from '@types';
-import { nanoid } from 'nanoid';
 import { ActionType } from '@prisma/client';
+import { RequestWithEmail } from '@types';
+import * as bcrypt from 'bcrypt';
+import * as cookie from 'cookie';
+import { Response } from 'express';
+import { nanoid } from 'nanoid';
+import { RegisterRootFolderDto } from 'src/drive/dto/register-root-folder.dto';
 import { MailService } from 'src/services/mail.service';
+import { PrismaService } from 'src/services/prisma.service';
+import { USER_REGISTERED_EVENT } from 'src/utils/constants';
 import { RefreshResponseDto } from './dto/refresh-token.dto';
+import { SignInDto, SignInResponseDto } from './dto/signin.dto';
+import { SignUpRequestDto, SignUpResponseDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async signUp(payload: SignUpRequestDto): Promise<SignUpResponseDto> {
@@ -44,6 +48,8 @@ export class AuthenticationService {
     });
 
     await this.sendEmailOnRegister(payload.email);
+
+    this.eventEmitter.emit(USER_REGISTERED_EVENT, new RegisterRootFolderDto(payload.email));
 
     return {
       user: {

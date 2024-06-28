@@ -1,5 +1,5 @@
-import { IsString, IsEmail, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import { UserDto } from 'src/user/user.dto';
 export class SignInDto {
   @IsEmail()

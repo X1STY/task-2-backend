@@ -16,6 +16,7 @@ model User {
   password     String
   is_confirmed Boolean   @default(false)
   Actions      Actions[]
+  Folders      Folder[]
 }
 
 model Actions {
@@ -24,8 +25,17 @@ model Actions {
   action_type ActionType
   token       String
   exp_date    DateTime
+  User        User       @relation(fields: [user_email], references: [email])
+}
 
-  User User @relation(fields: [user_email], references: [email])
+model Folder {
+  id           String   @id
+  name         String
+  user_email   String
+  parent_id    String
+  User         User     @relation(fields: [user_email], references: [email])
+  ParentFolder Folder   @relation("FolderToParent", fields: [parent_id], references: [id])
+  ChildFolders Folder[] @relation("FolderToParent")
 }
 
 enum ActionType {

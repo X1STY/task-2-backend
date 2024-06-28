@@ -1,22 +1,22 @@
 import { Body, Controller, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthenticationService } from './authentication.service';
-import { SignUpRequestDto, SignUpResponseDto } from './dto/signup.dto';
-import { SignInDto, SignInResponseDto } from './dto/signin.dto';
-import { Response } from 'express';
-import { RefreshGuard } from './guard/refresh.guard';
-import { RequestWithEmail } from '@types';
-import { AccessGuard } from './guard/access.guard';
 import {
-  ApiTags,
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
-  ApiOkResponse,
-  ApiUnauthorizedResponse,
   ApiHeader,
-  ApiBearerAuth
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { RequestWithEmail } from '@types';
+import { Response } from 'express';
 import { BadRequestErrorDto, UnauthorizedErrorDto } from 'src/error/dto/error.dto';
+import { AuthenticationService } from './authentication.service';
 import { RefreshResponseDto } from './dto/refresh-token.dto';
+import { SignInDto, SignInResponseDto } from './dto/signin.dto';
+import { SignUpRequestDto, SignUpResponseDto } from './dto/signup.dto';
+import { AccessGuard } from './guard/access.guard';
+import { RefreshGuard } from './guard/refresh.guard';
 
 @ApiTags('Auth')
 @Controller('auth')

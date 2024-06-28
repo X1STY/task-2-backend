@@ -8,4 +8,5 @@ module.exports = {
   useTabs: false,
   endOfLine: 'lf',
   arrowParens: 'always',
+  plugins: ['prettier-plugin-organize-imports']
 };
