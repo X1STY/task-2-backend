@@ -33,6 +33,9 @@ export class DriveService {
         }
       })
       .then((folder) => {
+        if (!folder) {
+          return null;
+        }
         return {
           ...folder!,
           ChildFolders:
@@ -41,7 +44,6 @@ export class DriveService {
             ) || []
         };
       });
-
     if (!folder) {
       throw new BadRequestException(['Folder not found']);
     }
