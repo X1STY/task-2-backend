@@ -17,9 +17,20 @@ export class UnauthorizedErrorDto {
   @ApiProperty({ example: 401 })
   statusCode: number;
 
-  @ApiProperty({ example: 'Invalid token' })
+  @ApiProperty({ example: ['Invalid token'] })
   message: string;
 
   @ApiProperty({ example: 'Unauthorized' })
+  error: string;
+}
+
+export class ForbiddenErrorDto {
+  @ApiProperty({ example: 403 })
+  statusCode: number;
+
+  @ApiProperty({ example: ['Forbidden'] })
+  message: string;
+
+  @ApiProperty({ example: 'Forbidden' })
   error: string;
 }

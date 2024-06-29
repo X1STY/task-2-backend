@@ -17,6 +17,7 @@ model User {
   is_confirmed Boolean   @default(false)
   Actions      Actions[]
   Folders      Folder[]
+  File         File[]
 }
 
 model Actions {
@@ -29,13 +30,27 @@ model Actions {
 }
 
 model Folder {
-  id           String   @id
-  name         String
-  user_email   String
-  parent_id    String
-  User         User     @relation(fields: [user_email], references: [email])
-  ParentFolder Folder   @relation("FolderToParent", fields: [parent_id], references: [id])
-  ChildFolders Folder[] @relation("FolderToParent")
+  id               String   @id
+  name             String
+  user_email       String
+  parent_folder_id String
+  is_root          Boolean  @default(false)
+  User             User     @relation(fields: [user_email], references: [email])
+  ParentFolder     Folder   @relation("FolderToParent", fields: [parent_folder_id], references: [id])
+  ChildFolders     Folder[] @relation("FolderToParent")
+  ChildFiles       File[]
+
+  @@unique([name, parent_folder_id])
+}
+
+model File {
+  id               String @id
+  user_email       String
+  parent_folder_id String
+  name             String
+  file_path        String
+  User             User   @relation(fields: [user_email], references: [email])
+  parentFolder     Folder @relation(fields: [parent_folder_id], references: [id])
 }
 
 enum ActionType {
