@@ -85,6 +85,16 @@ export class DriveService {
     name,
     parent_id
   }: CreateFolderRequestDto): Promise<CreateFolderResponseDto> {
+    if (parent_id === 'root') {
+      parent_id = await this.prisma.folder
+        .findFirst({
+          where: {
+            is_root: true,
+            user_email: email
+          }
+        })
+        .then((folder) => folder!.id);
+    }
     const isFolderExists = await this.prisma.folder.findFirst({
       where: {
         name: name,
