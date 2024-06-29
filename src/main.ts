@@ -14,8 +14,10 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('Authorization module API')
-    .setDescription('This module use JWT tokens for handling authorization')
+    .setTitle('Backend IPST task 3')
+    .setDescription(
+      'This module handle JWT tokens based authorization (based on task 2) with email confirmation. And Drive file storage module'
+    )
     .addBearerAuth()
     .setVersion('1.0')
     .build();

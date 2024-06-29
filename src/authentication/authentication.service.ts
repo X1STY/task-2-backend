@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import * as cookie from 'cookie';
 import { Response } from 'express';
 import { nanoid } from 'nanoid';
-import { RegisterRootFolderDto } from 'src/drive/dto/register-root-folder.dto';
+import { RegisterRootFolderDto } from 'src/drive/dto/folder/register-root-folder.dto';
 import { MailService } from 'src/services/mail.service';
 import { PrismaService } from 'src/services/prisma.service';
 import { USER_REGISTERED_EVENT } from 'src/utils/constants';

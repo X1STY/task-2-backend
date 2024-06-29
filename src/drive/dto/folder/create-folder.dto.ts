@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, NotEquals } from 'class-validator';
-import { FolderDto } from '../entities/folder.dto';
+import { FolderDto } from '../../entities/folder.dto';
 
 export class CreateFolderRequestDto {
   @IsString()

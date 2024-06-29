@@ -1,10 +1,19 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { unlink } from 'fs';
 import { nanoid } from 'nanoid';
+import { join } from 'path';
 import { PrismaService } from 'src/services/prisma.service';
 import { USER_REGISTERED_EVENT } from 'src/utils/constants';
-import { CreateFolderRequestDto, CreateFolderResponseDto } from './dto/create-folder.dto';
-import { GetFolderRequestDto, GetFolderResponseDto } from './dto/get-folder.dto';
+import { DeleteFileDto } from './dto/file/delete-file.dto';
+import { UploadFileDto, UploadFileResponseDto } from './dto/file/upload-file.dto';
+import { CreateFolderRequestDto, CreateFolderResponseDto } from './dto/folder/create-folder.dto';
+import { GetFolderRequestDto, GetFolderResponseDto } from './dto/folder/get-folder.dto';
 import { ChildFileDto } from './entities/file.dto';
 import { ChildFolderDto } from './entities/folder.dto';
 
@@ -116,7 +125,160 @@ export class DriveService {
     };
   }
 
-  async changeFolder({ email }: Partial<CreateFolderRequestDto>) {}
+  async changeFolder(
+    { name, email }: Partial<CreateFolderRequestDto>,
+    id: string
+  ): Promise<CreateFolderResponseDto> {
+    if (id === 'root') {
+      throw new ForbiddenException(["Can't change root folder"]);
+    }
+    const folder = await this.prisma.folder.findFirst({
+      where: {
+        id: id
+      }
+    });
+    if (!folder) {
+      throw new BadRequestException(['Folder not found']);
+    }
+    if (folder.user_email !== email) {
+      throw new ForbiddenException(["User don't have permission to access folder"]);
+    }
+    const updatedFolder = await this.prisma.folder.update({
+      where: {
+        id: id
+      },
+      data: {
+        name
+      }
+    });
+
+    return {
+      folder: {
+        id: updatedFolder.id,
+        name: updatedFolder.name,
+        parent_folder_id: updatedFolder.parent_folder_id
+      }
+    };
+  }
+
+  async deleteFolder({ email, id }: GetFolderRequestDto) {
+    if (id === 'root') {
+      throw new ForbiddenException(["Can't delete root folder"]);
+    }
+    const folder = await this.prisma.folder.findFirst({
+      where: {
+        id: id
+      }
+    });
+    if (!folder) {
+      throw new BadRequestException(['Folder not found']);
+    }
+    if (folder.user_email !== email) {
+      throw new ForbiddenException(["User don't have permission to access folder"]);
+    }
+    const deleteFolderWithChild = async (folderId: string) => {
+      const files = await this.prisma.file.findMany({
+        where: {
+          parent_folder_id: folderId
+        }
+      });
+      for (const file of files) {
+        await this.deleteFileFromEverywhere(file.id);
+      }
+      await this.prisma.file.deleteMany({
+        where: {
+          parent_folder_id: folderId
+        }
+      });
+      const childFolders = await this.prisma.folder.findMany({
+        where: {
+          parent_folder_id: folderId
+        }
+      });
+      for (const childFolder of childFolders) {
+        await deleteFolderWithChild(childFolder.id);
+      }
+      await this.prisma.folder.delete({
+        where: {
+          id: folderId
+        }
+      });
+    };
+    await deleteFolderWithChild(id);
+  }
+
+  async uploadFile({
+    email,
+    parent_folder_id,
+    file
+  }: UploadFileDto): Promise<UploadFileResponseDto> {
+    if (parent_folder_id === 'root') {
+      parent_folder_id = await this.prisma.folder
+        .findFirst({
+          where: {
+            is_root: true,
+            user_email: email
+          }
+        })
+        .then((folder) => folder!.id);
+    }
+    const folder = await this.prisma.folder.findFirst({
+      where: {
+        id: parent_folder_id
+      }
+    });
+    if (!folder) {
+      throw new BadRequestException(['Folder not found']);
+    }
+    if (folder.user_email !== email) {
+      throw new ForbiddenException(["User don't have permission to access folder"]);
+    }
+
+    const uploadedFile = await this.prisma.file.create({
+      data: {
+        name: file.originalname,
+        file_path: `/drive-storage/${file.filename}`,
+        parent_folder_id,
+        id: nanoid(),
+        user_email: email
+      }
+    });
+    return {
+      file: {
+        id: uploadedFile.id,
+        name: uploadedFile.name,
+        file_path: uploadedFile.file_path
+      }
+    };
+  }
+
+  async deleteFile({ email, id }: DeleteFileDto) {
+    const file = await this.prisma.file.findFirst({
+      where: {
+        id: id
+      }
+    });
+    if (!file) {
+      throw new BadRequestException(['File not found']);
+    }
+    if (file.user_email !== email) {
+      throw new ForbiddenException(["User don't have permission to access file"]);
+    }
+    await this.deleteFileFromEverywhere(id);
+  }
+
+  async deleteFileFromEverywhere(id: string) {
+    const file = await this.prisma.file.delete({
+      where: {
+        id
+      }
+    });
+    const filePath = file.file_path.split('/');
+    const fullPath = join(__dirname, '../..', 'drive-storage', filePath[filePath.length - 1]);
+    unlink(fullPath, () => {
+      throw new InternalServerErrorException(['Cannot delete file']);
+    });
+  }
 
   @OnEvent(USER_REGISTERED_EVENT)
   async createRootFolder({ email }: { email: string }) {

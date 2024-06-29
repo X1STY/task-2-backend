@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { ChildFileDto } from '../entities/file.dto';
-import { ChildFolderDto, FolderDto } from '../entities/folder.dto';
+import { ChildFileDto } from '../../entities/file.dto';
+import { ChildFolderDto, FolderDto } from '../../entities/folder.dto';
 
 export class GetFolderRequestDto {
   @IsString()
