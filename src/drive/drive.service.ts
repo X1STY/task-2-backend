@@ -1,11 +1,6 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { unlink } from 'fs';
+import { unlinkSync } from 'fs';
 import { nanoid } from 'nanoid';
 import { join } from 'path';
 import { PrismaService } from 'src/services/prisma.service';
@@ -285,9 +280,7 @@ export class DriveService {
     });
     const filePath = file.file_path.split('/');
     const fullPath = join(__dirname, '../..', 'drive-storage', filePath[filePath.length - 1]);
-    unlink(fullPath, () => {
-      throw new InternalServerErrorException(['Cannot delete file']);
-    });
+    unlinkSync(fullPath);
   }
 
   @OnEvent(USER_REGISTERED_EVENT)
