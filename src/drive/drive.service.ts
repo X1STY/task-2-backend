@@ -133,7 +133,7 @@ export class DriveService {
   }
 
   async changeFolder(
-    { name, email }: Partial<CreateFolderRequestDto>,
+    { name, email, parent_id }: Partial<CreateFolderRequestDto>,
     id: string
   ): Promise<CreateFolderResponseDto> {
     if (id === 'root') {
@@ -155,7 +155,8 @@ export class DriveService {
         id: id
       },
       data: {
-        name
+        name,
+        parent_folder_id: parent_id
       }
     });
 

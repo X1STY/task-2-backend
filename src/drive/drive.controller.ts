@@ -94,7 +94,10 @@ export class DriveController {
     @Body() body: Partial<CreateFolderRequestDto>
   ): Promise<CreateFolderResponseDto> {
     const { email } = request;
-    return await this.driveService.changeFolder({ email: email, name: body.name }, query.id);
+    return await this.driveService.changeFolder(
+      { email: email, name: body.name, parent_id: body.parent_id },
+      query.id
+    );
   }
 
   @UseGuards(AccessGuard)
