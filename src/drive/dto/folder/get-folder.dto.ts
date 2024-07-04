@@ -25,10 +25,9 @@ export class GetFolderResponseDto {
         type: 'folder'
       } as ChildFolderDto,
       {
-        file_path: 'https://domain_name/folders/file_name',
+        file_path: '/folders/file_name',
         id: 'Y3kGXR8_Z5jdHi6B-myT',
         name: 'file_name',
-        parent_folder_id: 'SbkGXR8_Z5jdHi6B-myT',
         type: 'file'
       } as ChildFileDto
     ]
