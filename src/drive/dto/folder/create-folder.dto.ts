@@ -10,7 +10,7 @@ export class CreateFolderRequestDto {
 
   @IsString()
   @ApiProperty({ example: 'V1StGXR8_Z5jdHi6B-myT' })
-  parent_id: string;
+  parent_folder_id: string;
   email: string;
 }
 

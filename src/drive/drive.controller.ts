@@ -70,11 +70,11 @@ export class DriveController {
   @HttpCode(201)
   @Post('folder')
   async createFolder(
-    @Body() { name, parent_id }: CreateFolderRequestDto,
+    @Body() { name, parent_folder_id }: CreateFolderRequestDto,
     @Req() request: RequestWithEmail
   ): Promise<CreateFolderResponseDto> {
     const { email } = request;
-    return await this.driveService.createFolder({ name, parent_id, email });
+    return await this.driveService.createFolder({ name, parent_folder_id, email });
   }
 
   @UseGuards(AccessGuard)
@@ -95,7 +95,7 @@ export class DriveController {
   ): Promise<CreateFolderResponseDto> {
     const { email } = request;
     return await this.driveService.changeFolder(
-      { email: email, name: body.name, parent_id: body.parent_id },
+      { email: email, name: body.name, parent_folder_id: body.parent_folder_id },
       query.id
     );
   }

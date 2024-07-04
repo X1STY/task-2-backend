@@ -80,10 +80,10 @@ export class DriveService {
   async createFolder({
     email,
     name,
-    parent_id
+    parent_folder_id
   }: CreateFolderRequestDto): Promise<CreateFolderResponseDto> {
-    if (parent_id === 'root') {
-      parent_id = await this.prisma.folder
+    if (parent_folder_id === 'root') {
+      parent_folder_id = await this.prisma.folder
         .findFirst({
           where: {
             is_root: true,
@@ -96,7 +96,7 @@ export class DriveService {
       where: {
         name: name,
         user_email: email,
-        parent_folder_id: parent_id
+        parent_folder_id
       }
     });
     if (isFolderExists) {
@@ -105,7 +105,7 @@ export class DriveService {
 
     const isParentFolderValid = await this.prisma.folder.findFirst({
       where: {
-        id: parent_id
+        id: parent_folder_id
       }
     });
 
@@ -119,7 +119,7 @@ export class DriveService {
         name: name,
         user_email: email,
         id: id,
-        parent_folder_id: parent_id
+        parent_folder_id
       }
     });
 
@@ -133,7 +133,7 @@ export class DriveService {
   }
 
   async changeFolder(
-    { name, email, parent_id }: Partial<CreateFolderRequestDto>,
+    { name, email, parent_folder_id }: Partial<CreateFolderRequestDto>,
     id: string
   ): Promise<CreateFolderResponseDto> {
     if (id === 'root') {
@@ -156,7 +156,7 @@ export class DriveService {
       },
       data: {
         name,
-        parent_folder_id: parent_id
+        parent_folder_id
       }
     });
 
