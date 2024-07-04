@@ -11,7 +11,10 @@ async function bootstrap() {
       forbidNonWhitelisted: true
     })
   );
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    credentials: true
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Backend IPST task 3')
