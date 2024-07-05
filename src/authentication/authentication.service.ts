@@ -73,7 +73,7 @@ export class AuthenticationService {
 
     response.cookie('refreshToken', refreshToken, {
       expires: new Date(new Date().getTime() + 30 * 1000),
-      sameSite: 'strict',
+      sameSite: 'none',
       httpOnly: true
     });
 
@@ -82,7 +82,7 @@ export class AuthenticationService {
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 60 * 60 * 24 * 3,
         path: '/'
       })
@@ -109,7 +109,7 @@ export class AuthenticationService {
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 60 * 60 * 24 * 3,
         path: '/'
       })
