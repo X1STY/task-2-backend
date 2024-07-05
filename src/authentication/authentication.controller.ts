@@ -42,7 +42,6 @@ export class AuthenticationController {
   }
   @ApiOkResponse({ type: RefreshResponseDto })
   @ApiUnauthorizedResponse({ type: UnauthorizedErrorDto })
-  @ApiHeader({ name: 'Authorization', required: true, description: 'Bearer token' })
   @HttpCode(200)
   @UseGuards(RefreshGuard)
   @Post('refresh')
