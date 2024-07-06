@@ -71,9 +71,9 @@ export class AuthenticationService {
     const { accessToken, refreshToken } = this.generateTokens(email);
 
     response.cookie('refreshToken', refreshToken, {
-      maxAge: 60 * 60 * 24 * 3,
+      maxAge: 60 * 60 * 24 * 3 * 1000,
       expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
-      httpOnly: true,
+      httpOnly: false,
       secure: false
     });
 
@@ -94,9 +94,9 @@ export class AuthenticationService {
     const email = requset.email;
     const { accessToken, refreshToken } = this.generateTokens(email);
     response.cookie('refreshToken', refreshToken, {
-      maxAge: 60 * 60 * 24 * 3,
+      maxAge: 60 * 60 * 24 * 3 * 1000,
       expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
-      httpOnly: true,
+      httpOnly: false,
       secure: false
     });
     return {
