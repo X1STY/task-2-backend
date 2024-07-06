@@ -142,6 +142,13 @@ export class DriveService {
     const folder = await this.prisma.folder.findFirst({
       where: {
         id: id
+      },
+      select: {
+        user_email: true,
+        parent_folder_id: true,
+        id: true,
+        name: true,
+        ChildFolders: true
       }
     });
     if (!folder) {
@@ -154,19 +161,35 @@ export class DriveService {
       throw new BadRequestException(['Can not change root folder']);
     }
 
-    const newParentFolder = await this.prisma.folder.findFirst({
-      where: {
-        id: parent_folder_id
-      },
-      select: {
-        ChildFolders: true
-      }
-    });
-
-    newParentFolder?.ChildFolders.map((child) => {
-      if (child.name === folder.name)
-        throw new BadRequestException(['Folder with same name already exists in parent']);
-    });
+    if (parent_folder_id) {
+      const newParentFolder = await this.prisma.folder.findFirst({
+        where: {
+          id: parent_folder_id
+        },
+        select: {
+          ChildFolders: true
+        }
+      });
+      newParentFolder?.ChildFolders.map((child) => {
+        if (child.name === folder.name)
+          throw new BadRequestException(['Folder with same name already exists in parent']);
+      });
+    }
+    if (name) {
+      const parentFolder = await this.prisma.folder.findFirst({
+        where: {
+          id: folder.parent_folder_id
+        },
+        select: {
+          ChildFolders: true
+        }
+      });
+      console.log(parentFolder?.ChildFolders);
+      parentFolder?.ChildFolders.map((child) => {
+        if (child.name === name)
+          throw new BadRequestException(['Folder with same name already exists']);
+      });
+    }
 
     const updatedFolder = await this.prisma.folder.update({
       where: {
