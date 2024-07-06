@@ -184,7 +184,6 @@ export class DriveService {
           ChildFolders: true
         }
       });
-      console.log(parentFolder?.ChildFolders);
       parentFolder?.ChildFolders.map((child) => {
         if (child.name === name)
           throw new BadRequestException(['Folder with same name already exists']);
