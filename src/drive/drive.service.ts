@@ -162,11 +162,12 @@ export class DriveService {
         ChildFolders: true
       }
     });
-    if (name && newParentFolder?.ChildFolders?.map((folder) => folder.name).includes(name)) {
-      throw new BadRequestException([
-        'Folder with this name already exists in the new parent folder'
-      ]);
-    }
+
+    newParentFolder?.ChildFolders.map((child) => {
+      if (child.name === folder.name)
+        throw new BadRequestException(['Folder with same name already exists in parent']);
+    });
+
     const updatedFolder = await this.prisma.folder.update({
       where: {
         id: id
