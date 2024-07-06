@@ -150,6 +150,23 @@ export class DriveService {
     if (folder.user_email !== email) {
       throw new ForbiddenException(["User don't have permission to access folder"]);
     }
+    if (folder.parent_folder_id === folder.id) {
+      throw new BadRequestException(['Can not change root folder']);
+    }
+
+    const newParentFolder = await this.prisma.folder.findFirst({
+      where: {
+        id: parent_folder_id
+      },
+      select: {
+        ChildFolders: true
+      }
+    });
+    if (name && newParentFolder?.ChildFolders?.map((folder) => folder.name).includes(name)) {
+      throw new BadRequestException([
+        'Folder with this name already exists in the new parent folder'
+      ]);
+    }
     const updatedFolder = await this.prisma.folder.update({
       where: {
         id: id
@@ -183,6 +200,9 @@ export class DriveService {
     }
     if (folder.user_email !== email) {
       throw new ForbiddenException(["User don't have permission to access folder"]);
+    }
+    if (folder.parent_folder_id === folder.id) {
+      throw new BadRequestException(['Can not delete root folder']);
     }
     const deleteFolderWithChild = async (folderId: string) => {
       const files = await this.prisma.file.findMany({

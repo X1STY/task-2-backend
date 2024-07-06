@@ -71,18 +71,18 @@ export class AuthenticationService {
     }
     const { accessToken, refreshToken } = this.generateTokens(email);
 
-    response.cookie('refreshToken', refreshToken, {
-      expires: new Date(new Date().getTime() + 30 * 1000),
-      sameSite: 'none',
-      httpOnly: true
-    });
+    // response.cookie('refreshToken', refreshToken, {
+    //   expires: new Date(new Date().getTime() + 30 * 1000),
+    //   sameSite: 'strict',
+    //   httpOnly: true
+    // });
 
     response.setHeader(
       'Set-Cookie',
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'none',
+        sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 3,
         path: '/'
       })
@@ -109,7 +109,7 @@ export class AuthenticationService {
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'none',
+        sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 3,
         path: '/'
       })
