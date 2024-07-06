@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ActionType } from '@prisma/client';
 import { RequestWithEmail } from '@types';
 import * as bcrypt from 'bcrypt';
-import * as cookie from 'cookie';
 import { Response } from 'express';
 import { nanoid } from 'nanoid';
 import { RegisterRootFolderDto } from 'src/drive/dto/folder/register-root-folder.dto';
@@ -71,22 +70,12 @@ export class AuthenticationService {
     }
     const { accessToken, refreshToken } = this.generateTokens(email);
 
-    // response.cookie('refreshToken', refreshToken, {
-    //   expires: new Date(new Date().getTime() + 30 * 1000),
-    //   sameSite: 'strict',
-    //   httpOnly: true
-    // });
-
-    response.setHeader(
-      'Set-Cookie',
-      cookie.serialize('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 3,
-        path: '/'
-      })
-    );
+    response.cookie('refreshToken', refreshToken, {
+      maxAge: 60 * 60 * 24 * 3,
+      expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
+      httpOnly: true,
+      secure: false
+    });
 
     return {
       user: {
@@ -104,16 +93,12 @@ export class AuthenticationService {
   async refreshTokens(response: Response, requset: RequestWithEmail): Promise<RefreshResponseDto> {
     const email = requset.email;
     const { accessToken, refreshToken } = this.generateTokens(email);
-    response.setHeader(
-      'Set-Cookie',
-      cookie.serialize('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 3,
-        path: '/'
-      })
-    );
+    response.cookie('refreshToken', refreshToken, {
+      maxAge: 60 * 60 * 24 * 3,
+      expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
+      httpOnly: true,
+      secure: false
+    });
     return {
       accessToken
     };

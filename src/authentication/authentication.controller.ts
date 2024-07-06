@@ -45,7 +45,7 @@ export class AuthenticationController {
   @UseGuards(RefreshGuard)
   @Post('refresh')
   async refreshTokens(
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
     @Req() req: RequestWithEmail
   ): Promise<RefreshResponseDto> {
     const result = await this.authenticationService.refreshTokens(res, req);
