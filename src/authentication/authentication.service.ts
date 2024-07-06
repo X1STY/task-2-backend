@@ -72,6 +72,7 @@ export class AuthenticationService {
 
     response.cookie('refreshToken', refreshToken, {
       maxAge: 60 * 60 * 24 * 3 * 1000,
+      path: '/',
       expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
       httpOnly: false,
       secure: false
@@ -95,6 +96,7 @@ export class AuthenticationService {
     const { accessToken, refreshToken } = this.generateTokens(email);
     response.cookie('refreshToken', refreshToken, {
       maxAge: 60 * 60 * 24 * 3 * 1000,
+      path: '/',
       expires: new Date(new Date().getTime() + 60 * 60 * 24 * 3 * 1000),
       httpOnly: false,
       secure: false
