@@ -5,7 +5,9 @@ Authorization module: signup, signin using JWT tokens, registration email confir
 ## Authorization
 
 Access token stored in body of response in signin route
+
 Access token should be stored in Authorization header of request to private routes
+
 Refresh token stored in http-only cookie and should be sent with request to refresh route
 
 ## ENV variables example
@@ -17,6 +19,4 @@ JWT_REFRESH_SECRET=hujioacefmgr6789025yfweciourghj29s3r803d5g4iuhj24t09
 ```
 ## Swagger API
 
-~~~
-http://176.109.108.98:8077/api
-~~~
+[API](https://iat39.devwonders.com:8077/api)
